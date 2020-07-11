@@ -43,11 +43,25 @@ func main() {
 func eval(stack *Item) (int, *Item, error) {
 	var op, left, right *Item
 
-	for !stack.Empty() {
+	var opStack *Item
+
+	for {
 		stack, op = stack.Pop()
+
 		if op.Typ == Number {
-			return op.Value, stack, nil
+			if opStack.Empty() {
+				return op.Value, stack, nil
+			}
+			stack = stack.Push(op) // op is a Number, not an Operation
+			opStack, op = opStack.Pop()
+		} else {
+			nxt := stack.Peek()
+			if nxt.Typ == Operation {
+				opStack = opStack.Push(op)
+				continue
+			}
 		}
+
 		stack, right = stack.Pop()
 		stack, left = stack.Pop()
 		fmt.Printf("%d %s %d\n", left.Value, op.Operation, right.Value)
@@ -96,6 +110,10 @@ func (stack *Item) Pop() (newstack *Item, top *Item) {
 func (stack *Item) Push(item *Item) *Item {
 	item.Next = stack
 	return item
+}
+
+func (stack *Item) Peek() *Item {
+	return stack
 }
 
 func prepareStack(stringreps []string) *Item {
