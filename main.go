@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"strconv"
 )
@@ -16,8 +15,10 @@ const (
 	Operation ItemType = iota
 )
 
-// Item represents a number or an operation, an if the latter,
-// what operation
+// Item represents a number or an operation, and if the latter,
+// what arithmetic operation.
+// Has a Next pointer element so it can function as a stack, too,
+// it's an old school intrusive data structure.
 type Item struct {
 	Typ       ItemType
 	Value     int
@@ -30,8 +31,16 @@ func main() {
 	list := prepareList(os.Args[1:])
 	result := eval(list)
 	fmt.Printf("%d\n", result)
+	result2 := eval2(list)
+	fmt.Printf("%d\n", result2)
 }
 
+// eval runs the input slice doing RPN arithmetic,
+// and returns the result so calculated.
+// The problem statement says you can assume a correct
+// input expression, so this lacks any input syntax
+// error handling. Uses *Item instances as both input
+// commands, and elements of a FIFO stack.
 func eval(list []*Item) int {
 
 	var stack *Item
@@ -66,39 +75,24 @@ func eval(list []*Item) int {
 	return stack.Value
 }
 
-func (stack *Item) Print(w io.Writer) {
-	fmt.Fprintf(w, "stack:\n")
-	for top := stack; top != nil; top = top.Next {
-		if top.Typ == Number {
-			fmt.Fprintf(w, "%d\n", top.Value)
-			continue
-		}
-		fmt.Fprintf(w, "%s\n", top.Operation)
-	}
-}
-
-func (stack *Item) Empty() bool {
-	if stack == nil {
-		return true
-	}
-	return false
-}
-
+// Pop returns the new stack, and whatever used to be at
+// the top of the old stack. Use like: stack, top := stack.Pop()
 func (stack *Item) Pop() (newstack *Item, top *Item) {
 	top = stack
 	newstack = stack.Next
 	return
 }
 
+// Push puts a *Item on a stack. Returns the new stack.
+// Use it like: stack = stack.Push(&Item{})
 func (stack *Item) Push(item *Item) *Item {
 	item.Next = stack
 	return item
 }
 
-func (stack *Item) Peek() *Item {
-	return stack
-}
-
+// prepareList turns a command line (slice of string) into
+// a slice of *Item. The output of this function is what the
+// problem statement says is the input to the desired function.
 func prepareList(stringreps []string) []*Item {
 	var list []*Item
 
@@ -114,4 +108,36 @@ func prepareList(stringreps []string) []*Item {
 	}
 
 	return list
+}
+
+// eval2 destructively evaluates the RPN expression in the list slice argument.
+// The slice gets used as a stack implictly.
+func eval2(list []*Item) int {
+	for len(list) > 1 {
+
+		for i := 0; i < len(list); i++ {
+			if list[i].Typ == Operation {
+				left := list[i-2]
+				right := list[i-1]
+				var val int
+				switch list[i].Operation {
+				case "+":
+					val = left.Value + right.Value
+				case "-":
+					val = left.Value - right.Value
+				case "/":
+					// Watch for div-by-zero
+					val = left.Value / right.Value
+				case "*":
+					val = left.Value * right.Value
+				}
+				list[i] = &Item{Typ: Number, Value: val}
+				// The only tricky part: excising the two Number-type
+				// elements of the slice list
+				list = append(list[:i-2], list[i:]...)
+				break
+			}
+		}
+	}
+	return list[0].Value
 }
