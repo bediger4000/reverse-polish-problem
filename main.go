@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -28,46 +27,29 @@ type Item struct {
 
 func main() {
 
-	stack := prepareStack(os.Args[1:])
-	stack.Print(os.Stdout)
-
-	value, stack, err := eval(stack)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Problem: %v\n", err)
-		return
-	}
-	fmt.Printf("%d\n", value)
-	stack.Print(os.Stdout)
+	list := prepareList(os.Args[1:])
+	result := eval(list)
+	fmt.Printf("%d\n", result)
 }
 
-func eval(stack *Item) (int, *Item, error) {
-	var op, left, right *Item
+func eval(list []*Item) int {
 
-	var opStack *Item
+	var stack *Item
 
-	for {
-		stack, op = stack.Pop()
+	for _, node := range list {
 
-		if op.Typ == Number {
-			if opStack.Empty() {
-				return op.Value, stack, nil
-			}
-			stack = stack.Push(op) // op is a Number, not an Operation
-			opStack, op = opStack.Pop()
-		} else {
-			nxt := stack.Peek()
-			if nxt.Typ == Operation {
-				opStack = opStack.Push(op)
-				continue
-			}
+		if node.Typ == Number {
+			stack = stack.Push(node)
+			continue
 		}
+
+		var left, right *Item
 
 		stack, right = stack.Pop()
 		stack, left = stack.Pop()
-		fmt.Printf("%d %s %d\n", left.Value, op.Operation, right.Value)
 
 		var val int
-		switch op.Operation {
+		switch node.Operation {
 		case "+":
 			val = left.Value + right.Value
 		case "-":
@@ -80,7 +62,8 @@ func eval(stack *Item) (int, *Item, error) {
 		}
 		stack = stack.Push(&Item{Typ: Number, Value: val})
 	}
-	return -1, stack, errors.New("shouldn't get here")
+
+	return stack.Value
 }
 
 func (stack *Item) Print(w io.Writer) {
@@ -116,17 +99,19 @@ func (stack *Item) Peek() *Item {
 	return stack
 }
 
-func prepareStack(stringreps []string) *Item {
-	var stack *Item
+func prepareList(stringreps []string) []*Item {
+	var list []*Item
 
 	for _, str := range stringreps {
 		n, err := strconv.Atoi(str)
+		var item *Item
 		if err == nil {
-			stack = stack.Push(&Item{Typ: Number, Value: n})
-			continue
+			item = &Item{Typ: Number, Value: n}
+		} else {
+			item = &Item{Typ: Operation, Operation: str}
 		}
-		stack = stack.Push(&Item{Typ: Operation, Operation: str})
+		list = append(list, item)
 	}
 
-	return stack
+	return list
 }
