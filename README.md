@@ -19,10 +19,36 @@ should return 5, since it is equivalent to
 
 You can assume the given expression is always valid.
 
+## Building and Running
+
+This is a command line Go program.
+You need to have a Go calculator installed.
+
+```
+$ go build -o revpolish .
+$ ./revpolish 5 3 -
+2
+2
+```
+
+The program contains 2 different evaluation function,
+and thus should output the same number (the answer) twice.
+
+The program uses `*` to denote the multiplication operator.
+You'll need to escape it on the Linux command line,
+otherwise your shell will expand it,
+creating invalid input for the program.
+
+```
+$ ./revpolish 5 3 \*
+15
+15
+```
+
 ## Analysis
 
 Anybody who's ever written a program in [PostScript](https://en.wikipedia.org/wiki/PostScript)
-or use an older Hewlett-Packard calculator
+or used an [older Hewlett-Packard calculator](https://www.hpmuseum.org/rpn.htm)
 won't have any trouble with this problem,
 supposing they can recognize the in-order inputs as analogous
 to the PostScript program,
