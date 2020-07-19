@@ -29,9 +29,9 @@ type Item struct {
 func main() {
 
 	list := prepareList(os.Args[1:])
-	result := eval(list)
+	result := eval(list) // explicit stack version
 	fmt.Printf("%d\n", result)
-	result2 := eval2(list)
+	result2 := eval2(list) // implicit stack version
 	fmt.Printf("%d\n", result2)
 }
 
