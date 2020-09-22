@@ -22,16 +22,16 @@ You can assume the given expression is always valid.
 ## Building and Running
 
 This is a command line Go program.
-You need to have a Go calculator installed.
+You need to have a Go compiler installed.
 
-```
+```sh
 $ go build revpolish.go
 $ ./revpolish 5 3 -
 2
 2
 ```
 
-The program contains 2 different evaluation function,
+The program contains 2 different evaluation functions,
 and thus should output the same number (the answer) twice.
 
 The program uses `*` to denote the multiplication operator.
@@ -39,11 +39,30 @@ You'll need to escape it on the Linux command line,
 otherwise your shell will expand it,
 creating invalid input for the program.
 
-```
+```sh
 $ ./revpolish 5 3 \*
 15
 15
 ```
+
+I did a minimalistic program, too:
+
+```sh
+$ go build simple.go
+$ ./simple 5 3 \*
+Push 5 on stack
+Push 3 on stack
+stack 2 deep, [5 3]
+Push 15 on stack
+Answer: 15
+Stack remaining: [15]
+$
+```
+
+This minimalistic program is only 42 lines of code,
+including printfs that might help debug or explain its operations.
+This program would probably be more typical of what a job candidate
+would produce in an interview.
 
 ## Analysis
 
