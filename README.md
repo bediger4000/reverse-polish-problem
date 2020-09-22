@@ -25,7 +25,7 @@ This is a command line Go program.
 You need to have a Go calculator installed.
 
 ```
-$ go build -o revpolish .
+$ go build revpolish.go
 $ ./revpolish 5 3 -
 2
 2
