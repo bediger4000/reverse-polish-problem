@@ -23,6 +23,7 @@ func main() {
 		var result int
 		switch str {
 		case "+":
+			result = left + right
 		case "*":
 			result = left * right
 		case "-":
