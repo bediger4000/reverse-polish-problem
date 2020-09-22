@@ -2,3 +2,4 @@
 set -eou pipefail
 echo answer should be 5
 ./revpolish 15 7 1 1 + - / 3 \* 2 1 1 + + -
+./simple 15 7 1 1 + - / 3 \* 2 1 1 + + -
